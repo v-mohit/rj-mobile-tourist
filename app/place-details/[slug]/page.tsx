@@ -14,16 +14,23 @@ export default async function PlaceDetailsPage({ params }: PageProps) {
   const pageData = await fetchPlaceDetails(slug);
 
   if (!pageData) notFound();
-    const id = pageData?.attributes?.place?.data?.id;
-
 
   const place = pageData.attributes.place.data;
+  const id = place?.id;
+  const placeAttributes = place?.attributes;
+
+  // Get first image URL if available
+  const imageUrl = placeAttributes?.images?.data?.[0]?.attributes?.url
+    ? `${process.env.NEXT_PUBLIC_GRAPHQL_IMG_URL}${placeAttributes.images.data[0].attributes.url}`
+    : undefined;
 
   return (
     <TicketSelector
-      placeName={place.attributes.name}
+      placeName={placeAttributes?.name || 'Place'}
       strapiPlaceId={Number(id)}
-      bookable={place.attributes.bookable}
+      bookable={placeAttributes?.bookable ?? false}
+      placeImage={imageUrl}
+      description={placeAttributes?.description}
     />
   );
 }
