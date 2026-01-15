@@ -5,7 +5,6 @@ export const metadata = {
   title: 'Rajasthan Ticket Booking',
   description: 'Book tickets for iconic monuments and attractions in Rajasthan. Instant bookings, no queues.',
   manifest: '/manifest.json',
-  themeColor: '#ff016e',
   appleStatusBarStyle: 'black-translucent',
 };
 
