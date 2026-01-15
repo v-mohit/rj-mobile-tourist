@@ -1,0 +1,224 @@
+import { gql, request } from 'graphql-request';
+
+const GRAPHQL_URL = process.env.NEXT_PUBLIC_GRAPHQL_URL!;
+
+export const FETCH_PLACE_DETAILS = gql`
+query FetchPlaceDetails($slug: String) {
+  placeDetails(filters: { slug: { eq: $slug } }) {
+    data {
+      attributes {
+        place {
+          data {
+            id
+            attributes {
+              name
+              link
+              bookable
+               categories(pagination: { limit: 999 }) {
+          data {
+            attributes {
+              Name
+              icon {
+                data {
+                  attributes {
+                    url
+                  }
+                }
+              }
+            }
+          }
+        }
+              images {
+                data {
+                  attributes {
+                    url
+                  }
+                }
+              }
+              description
+              city {
+                data {
+                  attributes {
+                    name
+                    places(pagination: { limit: 100 }) {
+                      data {
+                        id
+                        attributes {
+                          name
+                          description
+                          placeDetail {
+                            data {
+                              attributes {
+                                slug
+                              }
+                            }
+                          }
+                          description
+                          images {
+                            data {
+                              attributes {
+                                url
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                    cityDetail {
+                      data {
+                        attributes {
+                          slug
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        content {
+          __typename
+
+          ... on ComponentPlaceDetailHeader {
+            id
+          }
+
+          ... on ComponentPlaceDetailImages {
+            id
+          }
+
+          ... on ComponentPlaceDetailDescription {
+            id
+            title
+          }
+          ... on ComponentPlaceDetailPlaceoverview {
+            id
+            overview {
+              description
+              lat
+              long
+              address
+            }
+          }
+          ... on ComponentPlaceDetailPlacetickets {
+            id
+            title1
+            title2
+            information {
+              title
+              description
+            }
+            card {
+              title
+              content {
+                name
+                value
+              }
+            }
+          }
+
+          ... on ComponentPlaceDetailPlaceothers {
+            id
+            title1
+            title2
+            card(pagination: { limit: 100 }) {
+              title
+              content(pagination: { limit: 100 }) {
+                name
+                value
+              }
+            }
+          }
+
+          ... on ComponentPlaceDetailPlaceexhibit {
+            id
+            exhibit(pagination: { limit: 999 }) {
+              name
+              slug
+            }
+          }
+
+          ... on ComponentPlaceDetailPlacestovisit {
+            title
+            description
+            id
+            icon {
+              data {
+                attributes {
+                  url
+                }
+              }
+            }
+          }
+          ... on ComponentPlaceDetailPlaceGallery {
+            id
+            image {
+              data {
+                attributes {
+                  url
+                }
+              }
+            }
+          }
+          ... on ComponentPlaceDetail3DVideo {
+            id
+            threeDvideo {
+              data {
+                attributes {
+                  url
+                }
+              }
+            }
+          }
+          ... on ComponentPlaceDetailDynamicprice {
+  id
+  cats {
+    name
+    title
+    places {
+      name
+      priceType
+      remark
+      prices {
+        title
+        price
+        note
+      }
+    }
+  }
+}
+        }
+        categories {
+          name
+          title
+          description
+          places {
+            name
+            description
+            gallery {
+              image {
+                data {
+                  attributes {
+                    url
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`;
+
+export async function fetchPlaceDetails(slug: string) {
+  const decodedSlug = decodeURIComponent(slug);
+
+  const data = await request(GRAPHQL_URL, FETCH_PLACE_DETAILS, {
+    slug: decodedSlug,
+  });
+
+  return data?.placeDetails?.data?.[0] ?? null;
+}
