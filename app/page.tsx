@@ -2,11 +2,6 @@
 
 import Link from 'next/link';
 
-export const metadata = {
-  title: 'Rajasthan Ticket Booking',
-  description: 'Book tickets for forts and safari in Rajasthan',
-};
-
 export default function HomePage() {
   return (
     <main className="min-h-screen w-full bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 flex flex-col items-center justify-center px-4 py-8">
