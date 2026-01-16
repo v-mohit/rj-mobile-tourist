@@ -45,6 +45,8 @@ export default function TicketSelector({
       'booking',
       JSON.stringify({
         placeName,
+        strapiPlaceId,
+        backendPlaceId: backendPlaceId || backendPlaceData?.id,
         indian,
         foreigner,
         total,
