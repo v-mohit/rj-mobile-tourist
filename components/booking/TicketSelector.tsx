@@ -1,15 +1,22 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import TicketRow from './TicketRow';
+
+interface BackendPlace {
+  id: number;
+  name: string;
+  type: string;
+}
 
 interface TicketSelectorProps {
   placeName: string;
   strapiPlaceId: number;
+  backendPlaceId?: number;
   bookable: boolean;
   placeImage?: string;
   description?: string;
+  backendPlaceData?: BackendPlace;
 }
 
 const INDIAN_PRICE = 50;
@@ -17,9 +24,12 @@ const FOREIGNER_PRICE = 200;
 
 export default function TicketSelector({
   placeName,
+  strapiPlaceId,
+  backendPlaceId,
   bookable,
   placeImage,
-  description
+  description,
+  backendPlaceData
 }: TicketSelectorProps) {
   const [indian, setIndian] = useState(0);
   const [foreigner, setForeigner] = useState(0);
