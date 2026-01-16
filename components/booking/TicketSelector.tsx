@@ -58,14 +58,12 @@ export default function TicketSelector({
     <div className="min-h-screen w-full bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
       <section className="max-w-lg mx-auto">
         {/* Place Image Section */}
-        <div className="relative w-full h-64 bg-slate-700 overflow-hidden">
+        <div className="w-full h-64 bg-slate-700 overflow-hidden">
           {placeImage ? (
-            <Image
+            <img
               src={placeImage}
               alt={placeName}
-              fill
-              className="object-cover"
-              priority
+              className="w-full h-full object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-600 to-slate-800">
