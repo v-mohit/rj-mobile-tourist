@@ -3,20 +3,41 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
+import { loginWithMobile, loginWithEmail, verifyOTPForMobile, verifyOTPForEmail } from '@/lib/api/guestAuthApi';
+import BookingConfirmModal from '@/components/booking/BookingConfirmModal';
+
+interface BookingData {
+  placeName: string;
+  strapiPlaceId: number;
+  backendPlaceId?: number;
+  indian: number;
+  foreigner: number;
+  total: number;
+  date: string;
+}
 
 export default function VerifyPage() {
+  // Form state
   const [contact, setContact] = useState('');
+  const [isEmailLogin, setIsEmailLogin] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState('');
-  const [bookingInfo, setBookingInfo] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(0);
 
+  // Booking data
+  const [bookingInfo, setBookingInfo] = useState<BookingData | null>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  // Load booking info from session storage
   useEffect(() => {
-    // Get booking info from session storage
     const booking = sessionStorage.getItem('booking');
     if (booking) {
-      setBookingInfo(JSON.parse(booking));
+      try {
+        setBookingInfo(JSON.parse(booking));
+      } catch (error) {
+        console.error('Failed to parse booking data:', error);
+      }
     }
   }, []);
 
@@ -27,41 +48,113 @@ export default function VerifyPage() {
     return () => clearInterval(interval);
   }, [timer]);
 
+  // Handle login (get OTP)
   const handleGetOtp = async () => {
     if (!contact.trim()) {
-      toast.error('Please enter your mobile or email');
+      toast.error(`Please enter your ${isEmailLogin ? 'email' : 'mobile number'}`);
       return;
+    }
+
+    // Basic validation
+    if (isEmailLogin) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(contact)) {
+        toast.error('Please enter a valid email');
+        return;
+      }
+    } else {
+      if (contact.length < 10) {
+        toast.error('Please enter a valid mobile number');
+        return;
+      }
     }
 
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (isEmailLogin) {
+        await loginWithEmail(contact);
+      } else {
+        await loginWithMobile(contact);
+      }
+
       setOtpSent(true);
       setTimer(60);
       toast.success('OTP sent successfully');
-    } catch (error) {
-      toast.error('Failed to send OTP');
+    } catch (error: any) {
+      const errorMsg = error?.response?.data?.message || 'Failed to send OTP';
+      toast.error(errorMsg);
+      console.error('Login error:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleVerifyAndPay = async () => {
+  // Handle OTP verification
+  const handleVerifyOtp = async () => {
     if (!otp.trim()) {
       toast.error('Please enter OTP');
       return;
     }
 
+    if (otp.length < 4) {
+      toast.error('OTP should be at least 4 digits');
+      return;
+    }
+
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      toast.success('Verification successful!');
-      // In real implementation, redirect to payment
-      toast.success('Redirecting to payment...');
-    } catch (error) {
-      toast.error('Verification failed');
+      if (isEmailLogin) {
+        await verifyOTPForEmail(contact, otp);
+      } else {
+        await verifyOTPForMobile(contact, otp);
+      }
+
+      // If booking info exists, show confirmation modal
+      if (bookingInfo) {
+        setShowConfirmModal(true);
+      } else {
+        toast.success('Verification successful!');
+        // Redirect after short delay
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1500);
+      }
+    } catch (error: any) {
+      const errorMsg = error?.response?.data?.message || 'Verification failed';
+      toast.error(errorMsg);
+      console.error('Verify error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle booking confirmation
+  const handleBookingConfirm = async () => {
+    if (!bookingInfo) return;
+
+    setLoading(true);
+    try {
+      // Here you would typically call your booking API
+      // For now, we'll just show success and redirect
+      
+      toast.success('Booking confirmed! Redirecting to payment...');
+      
+      // Save booking with verification info
+      sessionStorage.setItem('verifiedBooking', JSON.stringify({
+        ...bookingInfo,
+        contact,
+        isEmailLogin,
+        verifiedAt: new Date().toISOString(),
+      }));
+
+      // Redirect to payment page (you can update this to your actual payment URL)
+      setTimeout(() => {
+        window.location.href = '/payment';
+      }, 1500);
+    } catch (error: any) {
+      const errorMsg = error?.response?.data?.message || 'Booking confirmation failed';
+      toast.error(errorMsg);
+      console.error('Booking error:', error);
     } finally {
       setLoading(false);
     }
@@ -79,7 +172,7 @@ export default function VerifyPage() {
             Back
           </Link>
 
-          <h1 className="text-3xl font-bold text-white mb-1">Verify & Pay</h1>
+          <h1 className="text-3xl font-bold text-white mb-1">Verify & Book</h1>
           <p className="text-slate-400">Complete your ticket booking</p>
         </div>
 
@@ -88,12 +181,10 @@ export default function VerifyPage() {
           <div className="bg-slate-800 rounded-xl p-4 mb-6 border border-slate-700">
             <h2 className="text-sm font-semibold text-slate-300 uppercase tracking-wide mb-3">Booking Summary</h2>
             <div className="space-y-2">
-              {bookingInfo.placeName && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-400">Location</span>
-                  <span className="text-white font-semibold">{bookingInfo.placeName}</span>
-                </div>
-              )}
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-400">Location</span>
+                <span className="text-white font-semibold">{bookingInfo.placeName}</span>
+              </div>
               {bookingInfo.indian > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-400">Indian Tickets</span>
@@ -114,23 +205,51 @@ export default function VerifyPage() {
           </div>
         )}
 
-        {/* Contact Form */}
+        {/* Login Method Toggle */}
+        {!otpSent && (
+          <div className="flex gap-2 mb-6">
+            <button
+              onClick={() => setIsEmailLogin(false)}
+              className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
+                !isEmailLogin
+                  ? 'bg-[#ff016e] text-white shadow-lg shadow-[#ff016e]/30'
+                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+              }`}
+            >
+              Mobile
+            </button>
+            <button
+              onClick={() => setIsEmailLogin(true)}
+              className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
+                isEmailLogin
+                  ? 'bg-[#ff016e] text-white shadow-lg shadow-[#ff016e]/30'
+                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+              }`}
+            >
+              Email
+            </button>
+          </div>
+        )}
+
+        {/* Contact Input */}
         <div className="mb-8">
           <label className="block text-sm font-semibold text-white mb-2">
-            Mobile Number or Email
+            {isEmailLogin ? 'Email Address' : 'Mobile Number'}
           </label>
           <input
-            type="text"
-            placeholder="Enter your mobile or email"
+            type={isEmailLogin ? 'email' : 'tel'}
+            placeholder={isEmailLogin ? 'Enter your email' : 'Enter your mobile number'}
             value={contact}
             onChange={(e) => setContact(e.target.value)}
             disabled={otpSent}
             className="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-400 focus:outline-none focus:border-[#ff016e] disabled:opacity-50 disabled:cursor-not-allowed"
           />
-          <p className="text-xs text-slate-400 mt-2">We'll use this for ticket confirmation</p>
+          <p className="text-xs text-slate-400 mt-2">
+            We'll send an OTP to {isEmailLogin ? 'verify your email' : 'confirm your mobile'}
+          </p>
         </div>
 
-        {/* OTP Section */}
+        {/* OTP Input */}
         {otpSent && (
           <div className="mb-8">
             <label className="block text-sm font-semibold text-white mb-2">
@@ -138,7 +257,7 @@ export default function VerifyPage() {
             </label>
             <input
               type="text"
-              placeholder="Enter 6-digit OTP"
+              placeholder="Enter 4-6 digit OTP"
               value={otp}
               onChange={(e) => setOtp(e.target.value.slice(0, 6))}
               maxLength={6}
@@ -168,7 +287,7 @@ export default function VerifyPage() {
                 disabled={loading || !contact.trim()}
                 className="w-full py-4 px-6 bg-[#ff016e] text-white text-lg font-bold rounded-xl transition-all hover:bg-[#e6015f] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-[#ff016e]/30"
               >
-                {loading ? 'Sending...' : 'Get OTP'}
+                {loading ? 'Sending...' : 'Send OTP'}
               </button>
               <p className="text-center text-xs text-slate-400">
                 100% secure • No spam
@@ -177,11 +296,11 @@ export default function VerifyPage() {
           ) : (
             <>
               <button
-                onClick={handleVerifyAndPay}
-                disabled={loading || !otp.trim() || otp.length < 6}
+                onClick={handleVerifyOtp}
+                disabled={loading || !otp.trim() || otp.length < 4}
                 className="w-full py-4 px-6 bg-green-600 text-white text-lg font-bold rounded-xl transition-all hover:bg-green-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl shadow-green-600/30"
               >
-                {loading ? 'Processing...' : 'Verify & Continue to Payment'}
+                {loading ? 'Verifying...' : 'Verify OTP'}
               </button>
               <button
                 onClick={() => {
@@ -191,7 +310,7 @@ export default function VerifyPage() {
                 }}
                 className="w-full py-3 px-6 bg-slate-700 text-white font-semibold rounded-xl transition-all hover:bg-slate-600 active:scale-95"
               >
-                Change Contact
+                Change {isEmailLogin ? 'Email' : 'Mobile'}
               </button>
             </>
           )}
@@ -209,6 +328,17 @@ export default function VerifyPage() {
           </div>
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      <BookingConfirmModal
+        isOpen={showConfirmModal}
+        bookingData={bookingInfo}
+        contact={contact}
+        isEmailLogin={isEmailLogin}
+        onConfirm={handleBookingConfirm}
+        onCancel={() => setShowConfirmModal(false)}
+        isLoading={loading}
+      />
     </div>
   );
 }
