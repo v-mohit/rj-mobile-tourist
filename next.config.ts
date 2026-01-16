@@ -18,8 +18,12 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'http',
-        hostname: 'x.x.x.180',
+        hostname: '10.70.235.180',
         port: '30203',
+      },
+      {
+        protocol: 'https',
+        hostname: 'content-tourist.rajasthan.gov.in',
       },
     ],
   },
