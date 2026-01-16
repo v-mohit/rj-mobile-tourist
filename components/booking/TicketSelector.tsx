@@ -108,6 +108,17 @@ export default function TicketSelector({
             </p>
           )}
 
+          {/* Backend Place Info */}
+          {backendPlaceData && (
+            <div className="bg-slate-700 rounded-lg p-4 mb-6 border border-slate-600">
+              <p className="text-xs text-slate-400 uppercase tracking-wide font-semibold mb-2">Location Info</p>
+              <p className="text-sm text-white">
+                <span className="text-slate-300">Type: </span>
+                <span className="font-semibold capitalize">{backendPlaceData.type}</span>
+              </p>
+            </div>
+          )}
+
           {/* Visit Date Info */}
           <div className="bg-slate-700 rounded-lg p-4 mb-6">
             <p className="text-xs text-slate-400 uppercase tracking-wide font-semibold">Visit Date</p>
