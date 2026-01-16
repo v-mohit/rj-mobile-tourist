@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { fetchPlaceDetails } from '@/lib/placeApi';
+import { getBackendPlaceByStrapiId } from '@/lib/api/placeApi';
 import TicketSelector from '@/components/booking/TicketSelector';
 
 type PageProps = {
@@ -16,7 +17,7 @@ export default async function PlaceDetailsPage({ params }: PageProps) {
   if (!pageData) notFound();
 
   const place = pageData.attributes.place.data;
-  const id = place?.id;
+  const strapiPlaceId = Number(place?.id);
   const placeAttributes = place?.attributes;
 
   // Get first image URL if available
@@ -24,13 +25,24 @@ export default async function PlaceDetailsPage({ params }: PageProps) {
     ? `${process.env.NEXT_PUBLIC_GRAPHQL_IMG_URL}${placeAttributes.images.data[0].attributes.url}`
     : undefined;
 
+  // Fetch backend place data (DB place info, ticket types, etc.)
+  let backendPlace = null;
+  try {
+    backendPlace = await getBackendPlaceByStrapiId(strapiPlaceId);
+  } catch (error) {
+    console.error('Failed to fetch backend place data:', error);
+    // Continue without backend data - TicketSelector will use defaults
+  }
+
   return (
     <TicketSelector
       placeName={placeAttributes?.name || 'Place'}
-      strapiPlaceId={Number(id)}
+      strapiPlaceId={strapiPlaceId}
+      backendPlaceId={backendPlace?.id}
       bookable={placeAttributes?.bookable ?? false}
       placeImage={imageUrl}
       description={placeAttributes?.description}
+      backendPlaceData={backendPlace}
     />
   );
 }
