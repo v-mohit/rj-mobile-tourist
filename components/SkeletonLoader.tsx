@@ -30,6 +30,34 @@ export function SkeletonPriceBreakdown() {
   );
 }
 
+export function SkeletonBookingSummary() {
+  return (
+    <div className="bg-slate-800 rounded-xl p-4 mb-6 border border-slate-700 animate-pulse">
+      <h2 className="text-sm font-semibold text-slate-300 uppercase tracking-wide mb-3">
+        <div className="h-3 bg-slate-700 rounded w-24"></div>
+      </h2>
+      <div className="space-y-2">
+        <div className="flex justify-between">
+          <div className="h-3 bg-slate-700 rounded w-20"></div>
+          <div className="h-3 bg-slate-700 rounded w-32"></div>
+        </div>
+        <div className="flex justify-between">
+          <div className="h-3 bg-slate-700 rounded w-20"></div>
+          <div className="h-3 bg-slate-700 rounded w-24"></div>
+        </div>
+        <div className="flex justify-between">
+          <div className="h-3 bg-slate-700 rounded w-20"></div>
+          <div className="h-3 bg-slate-700 rounded w-28"></div>
+        </div>
+        <div className="border-t border-slate-700 pt-2 mt-2 flex justify-between">
+          <div className="h-4 bg-slate-700 rounded w-16"></div>
+          <div className="h-5 bg-slate-700 rounded w-20"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function SkeletonModalContent() {
   return (
     <div className="animate-pulse">
