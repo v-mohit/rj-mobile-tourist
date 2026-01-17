@@ -209,7 +209,9 @@ export default function VerifyPage() {
         </div>
 
         {/* Booking Summary */}
-        {bookingInfo && (
+        {isInitializing ? (
+          <SkeletonBookingSummary />
+        ) : bookingInfo ? (
           <div className="bg-slate-800 rounded-xl p-4 mb-6 border border-slate-700">
             <h2 className="text-sm font-semibold text-slate-300 uppercase tracking-wide mb-3">Booking Summary</h2>
             <div className="space-y-2">
@@ -220,13 +222,13 @@ export default function VerifyPage() {
               {bookingInfo.indian > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-400">Indian Tickets</span>
-                  <span className="text-white font-semibold">{bookingInfo.indian} × ₹50</span>
+                  <span className="text-white font-semibold">{bookingInfo.indian} × ₹{bookingInfo.indianPrice || 50}</span>
                 </div>
               )}
               {bookingInfo.foreigner > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-400">Foreign Tickets</span>
-                  <span className="text-white font-semibold">{bookingInfo.foreigner} × ₹200</span>
+                  <span className="text-white font-semibold">{bookingInfo.foreigner} × ₹{bookingInfo.foreignerPrice || 200}</span>
                 </div>
               )}
               <div className="border-t border-slate-700 pt-2 mt-2 flex justify-between">
@@ -235,7 +237,7 @@ export default function VerifyPage() {
               </div>
             </div>
           </div>
-        )}
+        ) : null}
 
         {/* Login Method Toggle */}
         {!otpSent && (
