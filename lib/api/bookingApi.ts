@@ -21,12 +21,14 @@ export interface BookingTicketsResponse {
  */
 export async function getBookingTickets(
   placeId: string,
-  dateEpoch: number
+  dateEpoch: number,
+  specificChargesId: string = '65aa27a26aebab05633bd572'
 ): Promise<BookingTicketsResponse> {
   const response = await http.get('/booking/tickets/mobile', {
     params: {
       placeId,
       date: dateEpoch,
+      specificChargesId,
     },
   });
 
