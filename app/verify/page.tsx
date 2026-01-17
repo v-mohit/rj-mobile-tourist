@@ -29,7 +29,7 @@ export default function VerifyPage() {
   const [bookingInfo, setBookingInfo] = useState<BookingData | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  // Load booking info from session storage
+  // Load booking info and check for existing auth from session storage
   useEffect(() => {
     const booking = sessionStorage.getItem('booking');
     if (booking) {
@@ -38,6 +38,22 @@ export default function VerifyPage() {
       } catch (error) {
         console.error('Failed to parse booking data:', error);
       }
+    }
+
+    // Check if already authenticated (user came back from confirmation modal)
+    const existingToken = sessionStorage.getItem('authToken');
+    const existingContact = sessionStorage.getItem('verifiedContact');
+    const existingIsEmail = sessionStorage.getItem('verifiedIsEmail');
+
+    if (existingToken && existingContact) {
+      // User is already verified, go directly to confirmation modal
+      setContact(existingContact);
+      setIsEmailLogin(existingIsEmail === 'true');
+      setOtpSent(true); // Mark as verified to show confirmation modal
+      // Show confirmation modal immediately
+      setTimeout(() => {
+        setShowConfirmModal(true);
+      }, 100);
     }
   }, []);
 
