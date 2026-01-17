@@ -17,29 +17,17 @@ export interface BookingTicketsResponse {
 
 /**
  * Fetch ticket types and pricing for a specific place and date
+ * Uses token-free mobile endpoint: /booking/tickets/mobile
  */
 export async function getBookingTickets(
   placeId: string,
-  dateEpoch: number,
-  specificChargesId: string,
-  authToken?: string
+  dateEpoch: number
 ): Promise<BookingTicketsResponse> {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-
-  // Add authorization token if available
-  if (authToken) {
-    headers['Authorization'] = `Bearer ${authToken}`;
-  }
-
-  const response = await http.get('/booking/tickets', {
+  const response = await http.get('/booking/tickets/mobile', {
     params: {
       placeId,
       date: dateEpoch,
-      specificChargesId,
     },
-    headers,
   });
 
   return response.data;
