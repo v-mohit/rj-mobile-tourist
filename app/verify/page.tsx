@@ -57,6 +57,11 @@ export default function VerifyPage() {
         setShowConfirmModal(true);
       }, 100);
     }
+
+    // Finish initializing after a brief moment to ensure smooth skeleton transition
+    setTimeout(() => {
+      setIsInitializing(false);
+    }, 100);
   }, []);
 
   // Countdown timer for OTP
