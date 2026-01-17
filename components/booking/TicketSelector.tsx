@@ -51,9 +51,12 @@ export default function TicketSelector({
         today.setHours(0, 0, 0, 0);
         const dateEpoch = today.getTime();
 
+        const specificChargesId = '65aa27a26aebab05633bd572';
+
         const response = await getBookingTickets(
           backendPlaceId.toString(),
-          dateEpoch
+          dateEpoch,
+          specificChargesId
         );
 
         if (response.success && response.ticketTypes) {
