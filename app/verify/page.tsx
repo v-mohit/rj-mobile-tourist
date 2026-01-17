@@ -126,10 +126,12 @@ export default function VerifyPage() {
         response = await verifyOTPForMobile(contact, otp);
       }
 
-      // Save authentication token to session storage
+      // Save authentication token and contact to session storage
       if (response.token) {
         sessionStorage.setItem('authToken', response.token);
         sessionStorage.setItem('authUser', JSON.stringify(response.user || {}));
+        sessionStorage.setItem('verifiedContact', contact);
+        sessionStorage.setItem('verifiedIsEmail', String(isEmailLogin));
       }
 
       // If booking info exists, show confirmation modal
