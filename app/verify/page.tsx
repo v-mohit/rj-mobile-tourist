@@ -103,10 +103,17 @@ export default function VerifyPage() {
 
     setLoading(true);
     try {
+      let response;
       if (isEmailLogin) {
-        await verifyOTPForEmail(contact, otp);
+        response = await verifyOTPForEmail(contact, otp);
       } else {
-        await verifyOTPForMobile(contact, otp);
+        response = await verifyOTPForMobile(contact, otp);
+      }
+
+      // Save authentication token to session storage
+      if (response.token) {
+        sessionStorage.setItem('authToken', response.token);
+        sessionStorage.setItem('authUser', JSON.stringify(response.user || {}));
       }
 
       // If booking info exists, show confirmation modal
