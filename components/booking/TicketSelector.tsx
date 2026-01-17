@@ -191,14 +191,14 @@ export default function TicketSelector({
 
             <TicketRow
               title="Indian Citizen"
-              price={INDIAN_PRICE}
+              price={indianPrice}
               count={indian}
               onChange={setIndian}
             />
 
             <TicketRow
               title="Foreign Citizen"
-              price={FOREIGNER_PRICE}
+              price={foreignerPrice}
               count={foreigner}
               onChange={setForeigner}
             />
