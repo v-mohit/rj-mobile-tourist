@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import TicketRow from './TicketRow';
+import { getBookingTickets, type TicketType } from '@/lib/api/bookingApi';
 
 interface BackendPlace {
   id: number;
@@ -19,9 +20,6 @@ interface TicketSelectorProps {
   backendPlaceData?: BackendPlace;
 }
 
-const INDIAN_PRICE = 50;
-const FOREIGNER_PRICE = 200;
-
 export default function TicketSelector({
   placeName,
   strapiPlaceId,
@@ -33,6 +31,51 @@ export default function TicketSelector({
 }: TicketSelectorProps) {
   const [indian, setIndian] = useState(0);
   const [foreigner, setForeigner] = useState(0);
+  const [ticketTypes, setTicketTypes] = useState<TicketType[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch ticket data on mount
+  useEffect(() => {
+    const fetchTicketData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        if (!backendPlaceId) {
+          throw new Error('Place ID is required to fetch ticket data');
+        }
+
+        // Get current date in epoch milliseconds
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const dateEpoch = today.getTime();
+
+        const response = await getBookingTickets(
+          backendPlaceId.toString(),
+          dateEpoch
+        );
+
+        if (response.success && response.ticketTypes) {
+          setTicketTypes(response.ticketTypes);
+        } else {
+          throw new Error(response.message || 'Failed to fetch ticket data');
+        }
+      } catch (err) {
+        console.error('Error fetching ticket data:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load ticket prices');
+        // Fallback to hardcoded prices on error
+        setTicketTypes([
+          { id: '1', name: 'Indian Citizen', price: 50, type: 'INDIAN' },
+          { id: '2', name: 'Foreign Citizen', price: 200, type: 'FOREIGNER' }
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTicketData();
+  }, [backendPlaceId]);
 
   const total = indian * INDIAN_PRICE + foreigner * FOREIGNER_PRICE;
   const totalTickets = indian + foreigner;
