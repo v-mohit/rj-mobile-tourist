@@ -29,6 +29,7 @@ export default function VerifyPage() {
   // Booking data
   const [bookingInfo, setBookingInfo] = useState<BookingData | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
 
   // Load booking info and check for existing auth from session storage
   useEffect(() => {
