@@ -97,6 +97,8 @@ export default function TicketSelector({
         indian,
         foreigner,
         total,
+        indianPrice,
+        foreignerPrice,
         date: new Date().toISOString().split('T')[0]
       })
     );
