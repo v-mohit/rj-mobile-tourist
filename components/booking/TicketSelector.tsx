@@ -211,13 +211,13 @@ export default function TicketSelector({
                 {indian > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-300">Indian Citizen × {indian}</span>
-                    <span className="text-white font-semibold">₹{indian * INDIAN_PRICE}</span>
+                    <span className="text-white font-semibold">₹{indian * indianPrice}</span>
                   </div>
                 )}
                 {foreigner > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-300">Foreign Citizen × {foreigner}</span>
-                    <span className="text-white font-semibold">₹{foreigner * FOREIGNER_PRICE}</span>
+                    <span className="text-white font-semibold">₹{foreigner * foreignerPrice}</span>
                   </div>
                 )}
               </div>
