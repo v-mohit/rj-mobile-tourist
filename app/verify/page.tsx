@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 import { loginWithMobile, loginWithEmail, verifyOTPForMobile, verifyOTPForEmail } from '@/lib/api/guestAuthApi';
 import BookingConfirmModal from '@/components/booking/BookingConfirmModal';
+import { SkeletonBookingSummary } from '@/components/SkeletonLoader';
 
 interface BookingData {
   placeName: string;
