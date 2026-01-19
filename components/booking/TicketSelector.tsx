@@ -59,10 +59,10 @@ export default function TicketSelector({
           specificChargesId
         );
 
-        if (response.success && response.ticketTypes) {
+        if (response.ticketTypes && Array.isArray(response.ticketTypes)) {
           setTicketTypes(response.ticketTypes);
         } else {
-          throw new Error(response.message || 'Failed to fetch ticket data');
+          throw new Error('Failed to fetch ticket data');
         }
       } catch (err) {
         console.error('Error fetching ticket data:', err);
