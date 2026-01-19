@@ -150,41 +150,64 @@ export default function BookingConfirmModal({
           <div className="mb-5 pb-5 border-b border-slate-700">
             <p className="text-xs text-slate-400 uppercase tracking-wide font-semibold mb-3">Tickets</p>
             <div className="space-y-3">
-              {bookingData.indian > 0 && (
-                <div className="flex justify-between items-center">
-                  <div>
-                    <span className="text-slate-300">Indian Citizens</span>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      {ticketTypes.find(t => t.type === 'INDIAN')?.name || 'Indian Citizen'}
-                    </p>
+              {bookingData.selectedTickets && bookingData.selectedTickets.length > 0 ? (
+                bookingData.selectedTickets.map(ticket => (
+                  <div key={ticket.id} className="flex justify-between items-center">
+                    <div>
+                      <span className="text-slate-300">{ticket.name}</span>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        @ ₹{ticket.price} per person
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-white">
+                        {ticket.count} {ticket.count > 1 ? 'tickets' : 'ticket'}
+                      </p>
+                      <p className="text-sm text-slate-400">
+                        ₹{ticket.subtotal}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-white">
-                      {bookingData.indian} {bookingData.indian > 1 ? 'tickets' : 'ticket'}
-                    </p>
-                    <p className="text-sm text-slate-400">
-                      ₹{(ticketTypes.find(t => t.type === 'INDIAN')?.price || 50) * bookingData.indian}
-                    </p>
-                  </div>
-                </div>
-              )}
-              {bookingData.foreigner > 0 && (
-                <div className="flex justify-between items-center">
-                  <div>
-                    <span className="text-slate-300">Foreign Citizens</span>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      {ticketTypes.find(t => t.type === 'FOREIGNER')?.name || 'Foreign Citizen'}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-white">
-                      {bookingData.foreigner} {bookingData.foreigner > 1 ? 'tickets' : 'ticket'}
-                    </p>
-                    <p className="text-sm text-slate-400">
-                      ₹{(ticketTypes.find(t => t.type === 'FOREIGNER')?.price || 200) * bookingData.foreigner}
-                    </p>
-                  </div>
-                </div>
+                ))
+              ) : (
+                <>
+                  {bookingData.indian && bookingData.indian > 0 && (
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <span className="text-slate-300">Indian Citizens</span>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          {ticketTypes.find(t => t.type === 'INDIAN')?.name || 'Indian Citizen'}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold text-white">
+                          {bookingData.indian} {bookingData.indian > 1 ? 'tickets' : 'ticket'}
+                        </p>
+                        <p className="text-sm text-slate-400">
+                          ₹{(ticketTypes.find(t => t.type === 'INDIAN')?.price || 50) * bookingData.indian}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {bookingData.foreigner && bookingData.foreigner > 0 && (
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <span className="text-slate-300">Foreign Citizens</span>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          {ticketTypes.find(t => t.type === 'FOREIGNER')?.name || 'Foreign Citizen'}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold text-white">
+                          {bookingData.foreigner} {bookingData.foreigner > 1 ? 'tickets' : 'ticket'}
+                        </p>
+                        <p className="text-sm text-slate-400">
+                          ₹{(ticketTypes.find(t => t.type === 'FOREIGNER')?.price || 200) * bookingData.foreigner}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
