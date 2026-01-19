@@ -47,17 +47,13 @@ export default function BookingConfirmModal({
       setLoadingTickets(true);
       setTicketError(null);
       try {
-        // Get auth token from session storage
-        const authToken = sessionStorage.getItem('authToken');
-
         // Convert date string to epoch milliseconds
         const dateEpoch = new Date(bookingData.date).getTime();
 
         const response = await getBookingTickets(
           String(bookingData.backendPlaceId),
           dateEpoch,
-          specificChargesId,
-          authToken || undefined
+          specificChargesId
         );
 
         if (response.ticketTypes && Array.isArray(response.ticketTypes)) {
