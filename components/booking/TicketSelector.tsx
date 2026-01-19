@@ -73,10 +73,16 @@ export default function TicketSelector({
         console.error('Error fetching ticket data:', err);
         setError(err instanceof Error ? err.message : 'Failed to load ticket prices');
         // Fallback to hardcoded prices on error
-        setTicketTypes([
+        const fallbackTickets: TicketType[] = [
           { id: '1', name: 'Indian Citizen', price: 50, type: 'INDIAN' },
           { id: '2', name: 'Foreign Citizen', price: 200, type: 'FOREIGNER' }
-        ]);
+        ];
+        setTicketTypes(fallbackTickets);
+        const initialCounts: Record<string, number> = {};
+        fallbackTickets.forEach(ticket => {
+          initialCounts[ticket.id] = 0;
+        });
+        setTicketCounts(initialCounts);
       } finally {
         setLoading(false);
       }
