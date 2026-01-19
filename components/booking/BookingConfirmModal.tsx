@@ -95,16 +95,6 @@ export default function BookingConfirmModal({
     day: 'numeric',
   });
 
-  // Calculate total from ticket types if available
-  const calculatedTotal = ticketTypes.reduce((sum, ticketType) => {
-    if (ticketType.type === 'INDIAN') {
-      return sum + ticketType.price * bookingData.indian;
-    } else if (ticketType.type === 'FOREIGNER') {
-      return sum + ticketType.price * bookingData.foreigner;
-    }
-    return sum;
-  }, 0);
-
   // Show skeleton while loading tickets
   if (loadingTickets) {
     return (
