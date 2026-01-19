@@ -7,12 +7,23 @@ import { loginWithMobile, loginWithEmail, verifyOTPForMobile, verifyOTPForEmail 
 import BookingConfirmModal from '@/components/booking/BookingConfirmModal';
 import { SkeletonBookingSummary } from '@/components/SkeletonLoader';
 
+interface SelectedTicket {
+  id: string;
+  name: string;
+  type: string;
+  price: number;
+  count: number;
+  subtotal: number;
+}
+
 interface BookingData {
   placeName: string;
   strapiPlaceId: number;
   backendPlaceId?: number;
-  indian: number;
-  foreigner: number;
+  selectedTickets?: SelectedTicket[];
+  // Legacy fields for backward compatibility
+  indian?: number;
+  foreigner?: number;
   total: number;
   date: string;
 }
