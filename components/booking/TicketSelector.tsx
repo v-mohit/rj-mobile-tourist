@@ -213,19 +213,32 @@ export default function TicketSelector({
               <span className="text-sm font-normal text-slate-400">({totalTickets} {totalTickets === 1 ? 'ticket' : 'tickets'})</span>
             </h2>
 
-            <TicketRow
-              title="Indian Citizen"
-              price={indianPrice}
-              count={indian}
-              onChange={setIndian}
-            />
-
-            <TicketRow
-              title="Foreign Citizen"
-              price={foreignerPrice}
-              count={foreigner}
-              onChange={setForeigner}
-            />
+            {ticketTypes.length > 0 ? (
+              <div className="space-y-3">
+                {ticketTypes.map((ticket) => (
+                  <TicketRow
+                    key={ticket.id}
+                    title={ticket.name}
+                    price={ticket.price}
+                    count={ticketCounts[ticket.id] || 0}
+                    onChange={(newCount) =>
+                      setTicketCounts(prev => ({
+                        ...prev,
+                        [ticket.id]: newCount
+                      }))
+                    }
+                  />
+                ))}
+              </div>
+            ) : (
+              loading && (
+                <div className="space-y-3">
+                  {[1, 2].map(i => (
+                    <div key={i} className="h-20 bg-slate-700 rounded-xl animate-pulse" />
+                  ))}
+                </div>
+              )
+            )}
           </div>
 
           {/* Price Breakdown */}
