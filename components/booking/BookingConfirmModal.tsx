@@ -4,12 +4,23 @@ import { useState, useEffect } from 'react';
 import { getBookingTickets, TicketType } from '@/lib/api/bookingApi';
 import { SkeletonModalContent } from '../SkeletonLoader';
 
+interface SelectedTicket {
+  id: string;
+  name: string;
+  type: string;
+  price: number;
+  count: number;
+  subtotal: number;
+}
+
 interface BookingData {
   placeName: string;
   strapiPlaceId: number;
   backendPlaceId?: number;
-  indian: number;
-  foreigner: number;
+  selectedTickets?: SelectedTicket[];
+  // Legacy fields for backward compatibility
+  indian?: number;
+  foreigner?: number;
   total: number;
   date: string;
 }
