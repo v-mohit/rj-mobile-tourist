@@ -103,17 +103,26 @@ export default function TicketSelector({
   const handleBooking = () => {
     if (!isValid) return;
 
+    // Build selected tickets array with count and price info
+    const selectedTickets = ticketTypes
+      .filter(ticket => ticketCounts[ticket.id] > 0)
+      .map(ticket => ({
+        id: ticket.id,
+        name: ticket.name,
+        type: ticket.type,
+        price: ticket.price,
+        count: ticketCounts[ticket.id],
+        subtotal: ticket.price * ticketCounts[ticket.id]
+      }));
+
     sessionStorage.setItem(
       'booking',
       JSON.stringify({
         placeName,
         strapiPlaceId,
         backendPlaceId: backendPlaceId || backendPlaceData?.id,
-        indian,
-        foreigner,
+        selectedTickets,
         total,
-        indianPrice,
-        foreignerPrice,
         date: new Date().toISOString().split('T')[0]
       })
     );
