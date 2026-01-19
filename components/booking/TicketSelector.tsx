@@ -245,18 +245,14 @@ export default function TicketSelector({
           {total > 0 && (
             <div className="bg-slate-700 rounded-lg p-4 mb-6">
               <div className="space-y-2 mb-3">
-                {indian > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-300">Indian Citizen × {indian}</span>
-                    <span className="text-white font-semibold">₹{indian * indianPrice}</span>
-                  </div>
-                )}
-                {foreigner > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-300">Foreign Citizen × {foreigner}</span>
-                    <span className="text-white font-semibold">₹{foreigner * foreignerPrice}</span>
-                  </div>
-                )}
+                {ticketTypes
+                  .filter(ticket => ticketCounts[ticket.id] > 0)
+                  .map(ticket => (
+                    <div key={ticket.id} className="flex justify-between text-sm">
+                      <span className="text-slate-300">{ticket.name} × {ticketCounts[ticket.id]}</span>
+                      <span className="text-white font-semibold">₹{ticket.price * ticketCounts[ticket.id]}</span>
+                    </div>
+                  ))}
               </div>
               <div className="border-t border-slate-600 pt-3 flex justify-between">
                 <span className="text-white font-semibold">Total Amount</span>
