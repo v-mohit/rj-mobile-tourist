@@ -29,8 +29,7 @@ export default function TicketSelector({
   description,
   backendPlaceData
 }: TicketSelectorProps) {
-  const [indian, setIndian] = useState(0);
-  const [foreigner, setForeigner] = useState(0);
+  const [ticketCounts, setTicketCounts] = useState<Record<string, number>>({});
   const [ticketTypes, setTicketTypes] = useState<TicketType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
