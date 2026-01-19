@@ -224,30 +224,47 @@ export default function BookingConfirmModal({
         {/* Price Breakdown */}
         <div className="bg-gradient-to-r from-[#ff016e]/10 to-[#ff4d8f]/10 rounded-xl p-5 mb-6 border border-[#ff016e]/30">
           <div className="space-y-2">
-            {bookingData.indian > 0 && (
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-300">
-                  Indian × {bookingData.indian} @ ₹{ticketTypes.find(t => t.type === 'INDIAN')?.price || 50}
-                </span>
-                <span className="text-white font-semibold">
-                  ₹{(ticketTypes.find(t => t.type === 'INDIAN')?.price || 50) * bookingData.indian}
-                </span>
-              </div>
-            )}
-            {bookingData.foreigner > 0 && (
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-300">
-                  Foreign × {bookingData.foreigner} @ ₹{ticketTypes.find(t => t.type === 'FOREIGNER')?.price || 200}
-                </span>
-                <span className="text-white font-semibold">
-                  ₹{(ticketTypes.find(t => t.type === 'FOREIGNER')?.price || 200) * bookingData.foreigner}
-                </span>
-              </div>
+            {bookingData.selectedTickets && bookingData.selectedTickets.length > 0 ? (
+              <>
+                {bookingData.selectedTickets.map(ticket => (
+                  <div key={ticket.id} className="flex justify-between text-sm">
+                    <span className="text-slate-300">
+                      {ticket.name} × {ticket.count} @ ₹{ticket.price}
+                    </span>
+                    <span className="text-white font-semibold">
+                      ₹{ticket.subtotal}
+                    </span>
+                  </div>
+                ))}
+              </>
+            ) : (
+              <>
+                {bookingData.indian && bookingData.indian > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-300">
+                      Indian × {bookingData.indian} @ ₹{ticketTypes.find(t => t.type === 'INDIAN')?.price || 50}
+                    </span>
+                    <span className="text-white font-semibold">
+                      ₹{(ticketTypes.find(t => t.type === 'INDIAN')?.price || 50) * bookingData.indian}
+                    </span>
+                  </div>
+                )}
+                {bookingData.foreigner && bookingData.foreigner > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-300">
+                      Foreign × {bookingData.foreigner} @ ₹{ticketTypes.find(t => t.type === 'FOREIGNER')?.price || 200}
+                    </span>
+                    <span className="text-white font-semibold">
+                      ₹{(ticketTypes.find(t => t.type === 'FOREIGNER')?.price || 200) * bookingData.foreigner}
+                    </span>
+                  </div>
+                )}
+              </>
             )}
             <div className="border-t border-[#ff016e]/30 pt-2 flex justify-between items-center">
               <span className="text-white font-semibold text-lg">Total Amount</span>
               <span className="text-3xl font-black text-[#ff016e]">
-                ₹{calculatedTotal || bookingData.total}
+                ₹{bookingData.total}
               </span>
             </div>
           </div>
