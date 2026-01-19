@@ -60,6 +60,12 @@ export default function TicketSelector({
 
         if (response.ticketTypes && Array.isArray(response.ticketTypes)) {
           setTicketTypes(response.ticketTypes);
+          // Initialize counts for each ticket type to 0
+          const initialCounts: Record<string, number> = {};
+          response.ticketTypes.forEach(ticket => {
+            initialCounts[ticket.id] = 0;
+          });
+          setTicketCounts(initialCounts);
         } else {
           throw new Error('Failed to fetch ticket data');
         }
