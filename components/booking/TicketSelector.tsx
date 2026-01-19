@@ -91,12 +91,13 @@ export default function TicketSelector({
     fetchTicketData();
   }, [backendPlaceId]);
 
-  // Find prices from fetched ticket types
-  const indianPrice = ticketTypes.find(t => t.type === 'INDIAN')?.price || 50;
-  const foreignerPrice = ticketTypes.find(t => t.type === 'FOREIGNER')?.price || 200;
+  // Calculate total from all selected tickets
+  const total = Object.entries(ticketCounts).reduce((sum, [ticketId, count]) => {
+    const ticketType = ticketTypes.find(t => t.id === ticketId);
+    return sum + (ticketType ? ticketType.price * count : 0);
+  }, 0);
 
-  const total = indian * indianPrice + foreigner * foreignerPrice;
-  const totalTickets = indian + foreigner;
+  const totalTickets = Object.values(ticketCounts).reduce((sum, count) => sum + count, 0);
   const isValid = total > 0 && bookable;
 
   const handleBooking = () => {
