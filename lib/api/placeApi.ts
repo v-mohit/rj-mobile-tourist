@@ -8,12 +8,13 @@ export interface BackendPlace {
 
 export async function getBackendPlaceByStrapiId(
   strapiPlaceId: number
-): Promise<BackendPlace> {
+): Promise<BackendPlace | null> {
   const response = await http.get('/place/get', {
     params: {
       locationId: strapiPlaceId,
     },
   });
 
-  return response.data;
+  // Handle both direct response and result-wrapped response
+  return response.data?.result || response.data;
 }
