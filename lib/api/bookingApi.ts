@@ -130,7 +130,7 @@ export async function getBookingTickets(
     },
   });
 
-  const normalized = normalizeTicketResponse(response.data);
+  const normalized = normalizeTicketResponse(response?.data?.result);
 
   return {
     ticketTypes: normalized,
