@@ -1,5 +1,7 @@
 import { http } from '../http';
 
+// v2.1: Updated to filter zero-price tickets and improve API response handling
+
 // Frontend normalized ticket type (for UI consumption)
 export interface TicketType {
   id: string;
