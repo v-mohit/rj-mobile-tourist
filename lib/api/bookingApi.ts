@@ -130,7 +130,15 @@ export async function getBookingTickets(
     },
   });
 
-  const normalized = normalizeTicketResponse(response?.data?.result);
+  // Handle both wrapped (response.data.result) and direct (response.data) response formats
+  const responseData = response?.data?.result || response?.data;
+
+  console.log('API Response Data:', responseData);
+  console.log('TicketTypeDtos before filter:', responseData?.ticketTypeDtos?.map((t: any) => ({ id: t.id, name: t.masterTicketTypeName, amount: t.amount, active: t.active, delete: t.delete })));
+
+  const normalized = normalizeTicketResponse(responseData);
+
+  console.log('Normalized TicketTypes (after filter):', normalized);
 
   return {
     ticketTypes: normalized,
