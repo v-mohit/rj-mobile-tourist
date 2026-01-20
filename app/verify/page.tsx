@@ -230,17 +230,29 @@ export default function VerifyPage() {
                 <span className="text-slate-400">Location</span>
                 <span className="text-white font-semibold">{bookingInfo.placeName}</span>
               </div>
-              {bookingInfo.indian > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-400">Indian Tickets</span>
-                  <span className="text-white font-semibold">{bookingInfo.indian} × ₹{bookingInfo.indianPrice || 50}</span>
-                </div>
-              )}
-              {bookingInfo.foreigner > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-400">Foreign Tickets</span>
-                  <span className="text-white font-semibold">{bookingInfo.foreigner} × ₹{bookingInfo.foreignerPrice || 200}</span>
-                </div>
+              {/* Display dynamic selectedTickets or fallback to legacy format */}
+              {bookingInfo.selectedTickets && bookingInfo.selectedTickets.length > 0 ? (
+                bookingInfo.selectedTickets.map((ticket) => (
+                  <div key={ticket.id} className="flex justify-between text-sm">
+                    <span className="text-slate-400">{ticket.name}</span>
+                    <span className="text-white font-semibold">{ticket.count} × ₹{ticket.price}</span>
+                  </div>
+                ))
+              ) : (
+                <>
+                  {bookingInfo.indian && bookingInfo.indian > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-400">Indian Tickets</span>
+                      <span className="text-white font-semibold">{bookingInfo.indian} × ₹{bookingInfo.indianPrice || 50}</span>
+                    </div>
+                  )}
+                  {bookingInfo.foreigner && bookingInfo.foreigner > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-400">Foreign Tickets</span>
+                      <span className="text-white font-semibold">{bookingInfo.foreigner} × ₹{bookingInfo.foreignerPrice || 200}</span>
+                    </div>
+                  )}
+                </>
               )}
               <div className="border-t border-slate-700 pt-2 mt-2 flex justify-between">
                 <span className="text-white font-semibold">Total</span>
