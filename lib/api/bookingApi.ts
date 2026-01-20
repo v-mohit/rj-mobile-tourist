@@ -83,34 +83,56 @@ export interface BookingTicketsResponse {
 /**
  * Normalize the raw API response to frontend format
  * Maps TicketTypeDto[] to TicketType[] for UI consumption
+ * Filters out inactive, deleted, and zero-price tickets
  */
 export function normalizeTicketResponse(
-  response: BookingTicketsResponse
+  response: any
 ): TicketType[] {
-  if (!response.ticketTypeDtos || !Array.isArray(response.ticketTypeDtos)) {
+  // Ensure we have a valid response with ticketTypeDtos
+  if (!response || typeof response !== 'object') {
+    console.warn('Invalid response object:', response);
     return [];
   }
 
-  return response.ticketTypeDtos
-    .filter(dto => dto.active && !dto.delete && dto.amount > 0)
-    .map(dto => {
-      // Map ticket type based on masterTicketTypeName
-      let type = 'OTHER';
-      const name = dto.masterTicketTypeName.toLowerCase();
+  const ticketTypeDtos = response.ticketTypeDtos;
 
-      if (name.includes('indian')) {
-        type = 'INDIAN';
-      } else if (name.includes('foreign') || name.includes('foreigner')) {
-        type = 'FOREIGNER';
-      }
+  if (!ticketTypeDtos || !Array.isArray(ticketTypeDtos)) {
+    console.warn('No ticketTypeDtos array found in response');
+    return [];
+  }
 
-      return {
-        id: dto.id,
-        name: dto.masterTicketTypeName,
-        price: dto.amount,
-        type,
-      };
-    });
+  console.log(`Processing ${ticketTypeDtos.length} tickets from API`);
+
+  const filtered = ticketTypeDtos.filter(dto => {
+    const isActive = dto.active === true;
+    const isNotDeleted = dto.delete !== true;
+    const hasPriceSet = typeof dto.amount === 'number' && dto.amount > 0;
+
+    console.log(`Ticket "${dto.masterTicketTypeName}": active=${isActive}, deleted=${!isNotDeleted}, amount=${dto.amount}, passing=${isActive && isNotDeleted && hasPriceSet}`);
+
+    return isActive && isNotDeleted && hasPriceSet;
+  });
+
+  console.log(`Filtered down to ${filtered.length} tickets with price > 0`);
+
+  return filtered.map(dto => {
+    // Map ticket type based on masterTicketTypeName
+    let type = 'OTHER';
+    const name = dto.masterTicketTypeName.toLowerCase();
+
+    if (name.includes('indian')) {
+      type = 'INDIAN';
+    } else if (name.includes('foreign') || name.includes('foreigner')) {
+      type = 'FOREIGNER';
+    }
+
+    return {
+      id: dto.id,
+      name: dto.masterTicketTypeName,
+      price: dto.amount,
+      type,
+    };
+  });
 }
 
 /**
