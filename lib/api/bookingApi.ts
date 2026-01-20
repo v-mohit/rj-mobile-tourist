@@ -90,51 +90,36 @@ export interface BookingTicketsResponse {
 export function normalizeTicketResponse(
   response: any
 ): TicketType[] {
-  // Ensure we have a valid response with ticketTypeDtos
   if (!response || typeof response !== 'object') {
-    console.warn('Invalid response object:', response);
     return [];
   }
 
   const ticketTypeDtos = response.ticketTypeDtos;
 
   if (!ticketTypeDtos || !Array.isArray(ticketTypeDtos)) {
-    console.warn('No ticketTypeDtos array found in response');
     return [];
   }
 
-  console.log(`Processing ${ticketTypeDtos.length} tickets from API`);
+  return ticketTypeDtos
+    .filter(dto => dto.active === true && dto.delete !== true && typeof dto.amount === 'number' && dto.amount > 0)
+    .map(dto => {
+      // Map ticket type based on masterTicketTypeName
+      let type = 'OTHER';
+      const name = dto.masterTicketTypeName.toLowerCase();
 
-  const filtered = ticketTypeDtos.filter(dto => {
-    const isActive = dto.active === true;
-    const isNotDeleted = dto.delete !== true;
-    const hasPriceSet = typeof dto.amount === 'number' && dto.amount > 0;
+      if (name.includes('indian')) {
+        type = 'INDIAN';
+      } else if (name.includes('foreign') || name.includes('foreigner')) {
+        type = 'FOREIGNER';
+      }
 
-    console.log(`Ticket "${dto.masterTicketTypeName}": active=${isActive}, deleted=${!isNotDeleted}, amount=${dto.amount}, passing=${isActive && isNotDeleted && hasPriceSet}`);
-
-    return isActive && isNotDeleted && hasPriceSet;
-  });
-
-  console.log(`Filtered down to ${filtered.length} tickets with price > 0`);
-
-  return filtered.map(dto => {
-    // Map ticket type based on masterTicketTypeName
-    let type = 'OTHER';
-    const name = dto.masterTicketTypeName.toLowerCase();
-
-    if (name.includes('indian')) {
-      type = 'INDIAN';
-    } else if (name.includes('foreign') || name.includes('foreigner')) {
-      type = 'FOREIGNER';
-    }
-
-    return {
-      id: dto.id,
-      name: dto.masterTicketTypeName,
-      price: dto.amount,
-      type,
-    };
-  });
+      return {
+        id: dto.id,
+        name: dto.masterTicketTypeName,
+        price: dto.amount,
+        type,
+      };
+    });
 }
 
 /**
