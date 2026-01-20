@@ -131,55 +131,20 @@ export async function getBookingTickets(
   dateEpoch: number,
   specificChargesId: string = '65aa27a26aebab05633bd572'
 ): Promise<{ ticketTypes: TicketType[]; raw?: BookingTicketsResponse }> {
-  try {
-    const response = await http.get('/booking/tickets/mobile', {
-      params: {
-        placeId,
-        date: dateEpoch,
-        specificChargesId,
-      },
-    });
+  const response = await http.get('/booking/tickets/mobile', {
+    params: {
+      placeId,
+      date: dateEpoch,
+      specificChargesId,
+    },
+  });
 
-    console.log('=== BOOKING TICKETS API RESPONSE ===');
-    console.log('Full response:', response);
-    console.log('response.data:', response?.data);
-    console.log('response.data.result:', response?.data?.result);
+  // Handle both wrapped (response.data.result) and direct (response.data) response formats
+  const responseData = response?.data?.result || response?.data;
+  const normalized = normalizeTicketResponse(responseData);
 
-    // Handle both wrapped (response.data.result) and direct (response.data) response formats
-    let responseData = response?.data?.result || response?.data;
-
-    // If responseData is wrapped in another layer, unwrap it
-    if (responseData && responseData.result) {
-      console.log('Found nested result object, using it...');
-      responseData = responseData.result;
-    }
-
-    console.log('Final responseData to normalize:', responseData);
-
-    if (responseData?.ticketTypeDtos) {
-      console.log(`Found ${responseData.ticketTypeDtos.length} tickets in response`);
-      console.log('TicketTypeDtos before filter:', responseData.ticketTypeDtos.map((t: any) => ({
-        id: t.id,
-        name: t.masterTicketTypeName,
-        amount: t.amount,
-        active: t.active,
-        delete: t.delete
-      })));
-    } else {
-      console.warn('No ticketTypeDtos found in response!');
-    }
-
-    const normalized = normalizeTicketResponse(responseData);
-
-    console.log('Normalized TicketTypes (after filter):', normalized);
-    console.log('=== END API RESPONSE ===\n');
-
-    return {
-      ticketTypes: normalized,
-      raw: response.data,
-    };
-  } catch (error) {
-    console.error('Error fetching booking tickets:', error);
-    throw error;
-  }
+  return {
+    ticketTypes: normalized,
+    raw: response.data,
+  };
 }
