@@ -24,6 +24,8 @@ interface BookingData {
   // Legacy fields for backward compatibility
   indian?: number;
   foreigner?: number;
+  indianPrice?: number;
+  foreignerPrice?: number;
   total: number;
   date: string;
 }
