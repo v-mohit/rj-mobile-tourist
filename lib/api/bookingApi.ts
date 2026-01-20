@@ -92,7 +92,7 @@ export function normalizeTicketResponse(
   }
 
   return response.ticketTypeDtos
-    .filter(dto => dto.active && !dto.delete)
+    .filter(dto => dto.active && !dto.delete && dto.amount > 0)
     .map(dto => {
       // Map ticket type based on masterTicketTypeName
       let type = 'OTHER';
