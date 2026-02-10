@@ -113,6 +113,14 @@ export default function TicketSelector({
   const handleBooking = () => {
     if (!isValid) return;
 
+    // Get seasonId from the first ticket (all tickets should have the same seasonId)
+    const seasonId = apiResponse?.ticketTypeDtos?.[0]?.seasonId || '';
+
+    if (!seasonId || !selectedShiftId) {
+      console.error('Missing seasonId or shiftId for booking');
+      return;
+    }
+
     // Build selected tickets array with count and price info
     const selectedTickets = ticketTypes
       .filter(ticket => ticketCounts[ticket.id] > 0)
@@ -125,6 +133,11 @@ export default function TicketSelector({
         subtotal: ticket.price * ticketCounts[ticket.id]
       }));
 
+    // Get booking date in epoch milliseconds (today at 00:00:00)
+    const bookingDate = new Date();
+    bookingDate.setHours(0, 0, 0, 0);
+    const bookingDateEpoch = bookingDate.getTime();
+
     sessionStorage.setItem(
       'booking',
       JSON.stringify({
@@ -133,7 +146,12 @@ export default function TicketSelector({
         backendPlaceId: backendPlaceId || backendPlaceData?.id,
         selectedTickets,
         total,
-        date: new Date().toISOString().split('T')[0]
+        date: new Date().toISOString().split('T')[0],
+        // Add API metadata for booking creation
+        seasonId,
+        shiftId: selectedShiftId,
+        bookingDateEpoch,
+        shiftDtos: apiResponse?.shiftDtos || [],
       })
     );
     window.location.href = '/verify';
