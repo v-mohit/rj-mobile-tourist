@@ -32,32 +32,24 @@ export function getEmiraUrl(): string {
  */
 export function openPostPage(
   url: string,
-  data: Record<string, string | number | boolean>
+  data: Record<string, any>
 ): void {
   try {
-    // Create a form element
     const form = document.createElement('form');
-    form.method = 'POST';
+    document.body.appendChild(form);
+    form.method = 'post';
     form.action = url;
-    form.style.display = 'none';
 
-    // Add all data as hidden input fields
-    Object.entries(data).forEach(([key, value]) => {
+    for (const name in data) {
       const input = document.createElement('input');
       input.type = 'hidden';
-      input.name = key;
-      input.value = String(value);
+      input.name = name;
+      input.value = String(data[name]);
       form.appendChild(input);
-    });
+    }
 
-    // Append form to body and submit
-    document.body.appendChild(form);
     form.submit();
-
-    // Optional: remove form after submission
-    setTimeout(() => {
-      document.body.removeChild(form);
-    }, 100);
+    document.body.removeChild(form);
   } catch (error) {
     console.error('Error redirecting to payment gateway:', error);
     throw error;
