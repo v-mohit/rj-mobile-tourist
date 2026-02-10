@@ -229,3 +229,36 @@ export async function createBooking(
 
   return response.data;
 }
+
+/**
+ * Confirm booking and get payment gateway details
+ * GET /booking/confirm/v2?bookingId=<id>
+ */
+export interface ConfirmBookingResponse {
+  success: boolean;
+  message: string;
+  ENCDATA?: string;
+  MERCHANTCODE?: string;
+  SERVICEID?: string;
+  [key: string]: any;
+}
+
+export async function confirmBooking(
+  bookingId: string,
+  authToken?: string
+): Promise<ConfirmBookingResponse> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  // Add auth token if provided
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
+  }
+
+  const response = await http.get(`/booking/confirm/v2?bookingId=${bookingId}`, {
+    headers,
+  });
+
+  return response.data;
+}
