@@ -148,3 +148,84 @@ export async function getBookingTickets(
     raw: response.data,
   };
 }
+
+/**
+ * Ticket user DTO for booking creation
+ */
+export interface TicketUserDto {
+  ticketTypeId: string;
+  qty: number;
+  addOnList: any[];
+}
+
+/**
+ * Booking creation request payload
+ */
+export interface CreateBookingRequest {
+  bookingDate: number; // Epoch milliseconds
+  placeId: string;
+  device: string; // "Web"
+  seasonId: string;
+  ticketUserDtoClone: TicketUserDto[];
+  shiftId: string;
+  vip: boolean; // false
+  deviceId: string; // "WHoWer"
+}
+
+/**
+ * Booking creation response
+ */
+export interface CreateBookingResponse {
+  success: boolean;
+  message: string;
+  result?: {
+    bookingId?: string;
+    referenceNumber?: string;
+    [key: string]: any;
+  };
+}
+
+/**
+ * Create a new booking with selected tickets
+ * POST /booking/create/v2?onSite=false
+ */
+export async function createBooking(
+  placeId: string,
+  selectedTickets: Array<{ id: string; count: number }>,
+  seasonId: string,
+  shiftId: string,
+  bookingDate: number,
+  authToken?: string
+): Promise<CreateBookingResponse> {
+  const ticketUserDtoClone: TicketUserDto[] = selectedTickets.map(ticket => ({
+    ticketTypeId: ticket.id,
+    qty: ticket.count,
+    addOnList: [],
+  }));
+
+  const payload: CreateBookingRequest = {
+    bookingDate,
+    placeId,
+    device: 'Web',
+    seasonId,
+    ticketUserDtoClone,
+    shiftId,
+    vip: false,
+    deviceId: 'WHoWer',
+  };
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  // Add auth token if provided
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
+  }
+
+  const response = await http.post('/booking/create/v2?onSite=false', payload, {
+    headers,
+  });
+
+  return response.data;
+}
