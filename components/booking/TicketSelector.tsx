@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import TicketRow from './TicketRow';
-import { getBookingTickets, type TicketType } from '@/lib/api/bookingApi';
+import { getBookingTickets, type TicketType, type BookingTicketsResponse, type ShiftDto } from '@/lib/api/bookingApi';
 
 interface BackendPlace {
   id: number;
@@ -33,6 +33,8 @@ export default function TicketSelector({
   const [ticketTypes, setTicketTypes] = useState<TicketType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [apiResponse, setApiResponse] = useState<BookingTicketsResponse | null>(null);
+  const [selectedShiftId, setSelectedShiftId] = useState<string>('');
 
   // Fetch ticket data on mount
   useEffect(() => {
