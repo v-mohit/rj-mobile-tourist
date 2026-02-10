@@ -193,25 +193,59 @@ export default function VerifyPage() {
 
     setLoading(true);
     try {
-      // Here you would typically call your booking API
-      // For now, we'll just show success and redirect
-      
+      // Validate required fields for booking creation
+      if (!bookingInfo.selectedTickets || bookingInfo.selectedTickets.length === 0) {
+        throw new Error('No tickets selected');
+      }
+
+      if (!bookingInfo.backendPlaceId) {
+        throw new Error('Place ID is missing');
+      }
+
+      if (!bookingInfo.seasonId || !bookingInfo.shiftId || !bookingInfo.bookingDateEpoch) {
+        throw new Error('Booking metadata is missing. Please go back and try again.');
+      }
+
+      // Get auth token from session storage
+      const authToken = sessionStorage.getItem('authToken');
+
+      // Prepare selected tickets in the format expected by the API
+      const ticketsForBooking = bookingInfo.selectedTickets.map(ticket => ({
+        id: ticket.id,
+        count: ticket.count,
+      }));
+
+      // Call the booking creation API
+      const bookingResponse = await createBooking(
+        bookingInfo.backendPlaceId.toString(),
+        ticketsForBooking,
+        bookingInfo.seasonId,
+        bookingInfo.shiftId,
+        bookingInfo.bookingDateEpoch,
+        authToken || undefined
+      );
+
+      if (!bookingResponse.success) {
+        throw new Error(bookingResponse.message || 'Booking creation failed');
+      }
+
       toast.success('Booking confirmed! Redirecting to payment...');
-      
-      // Save booking with verification info
+
+      // Save booking with verification info and API response
       sessionStorage.setItem('verifiedBooking', JSON.stringify({
         ...bookingInfo,
         contact,
         isEmailLogin,
         verifiedAt: new Date().toISOString(),
+        bookingResponse,
       }));
 
-      // Redirect to payment page (you can update this to your actual payment URL)
+      // Redirect to payment page
       setTimeout(() => {
         window.location.href = '/payment';
       }, 1500);
     } catch (error: any) {
-      const errorMsg = error?.response?.data?.message || 'Booking confirmation failed';
+      const errorMsg = error?.response?.data?.message || error?.message || 'Booking confirmation failed';
       toast.error(errorMsg);
       console.error('Booking error:', error);
     } finally {
