@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 import { loginWithMobile, loginWithEmail, verifyOTPForMobile, verifyOTPForEmail } from '@/lib/api/guestAuthApi';
-import { createBooking } from '@/lib/api/bookingApi';
+import { createBooking, confirmBooking } from '@/lib/api/bookingApi';
+import { openPostPage, getEmiraUrl, isValidPaymentData } from '@/lib/utils/emitra';
 import BookingConfirmModal from '@/components/booking/BookingConfirmModal';
 import { SkeletonBookingSummary } from '@/components/SkeletonLoader';
 
