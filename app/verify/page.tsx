@@ -217,7 +217,7 @@ export default function VerifyPage() {
       }));
 
       // Step 1: Call the booking creation API
-      toast.loading('Creating booking...');
+      const toastId = toast.loading('Creating booking...');
       const bookingResponse = await createBooking(
         bookingInfo.backendPlaceId.toString(),
         ticketsForBooking,
@@ -238,7 +238,7 @@ export default function VerifyPage() {
       }
 
       // Step 2: Confirm booking and get payment gateway details
-      toast.loading('Confirming booking...');
+      toast.loading('Confirming booking...', { id: toastId });
       const confirmResponse = await confirmBooking(bookingId, authToken || undefined);
 
       if (!confirmResponse.success) {
@@ -247,7 +247,7 @@ export default function VerifyPage() {
 
       // Step 3: Check if response contains valid payment gateway data
       if (isValidPaymentData(confirmResponse)) {
-        toast.success('Booking confirmed! Redirecting to payment...');
+        toast.success('Booking confirmed! Redirecting to payment...', { id: toastId });
 
         // Save booking with verification info and API responses
         sessionStorage.setItem('verifiedBooking', JSON.stringify({
@@ -272,6 +272,7 @@ export default function VerifyPage() {
             const errorMsg = error?.message || 'Failed to redirect to payment gateway';
             toast.error(errorMsg);
             console.error('Payment gateway redirect error:', error);
+            setLoading(false);
           }
         }, 500);
       } else {
@@ -282,7 +283,6 @@ export default function VerifyPage() {
       const errorMsg = error?.response?.data?.message || error?.message || 'Booking confirmation failed';
       toast.error(errorMsg);
       console.error('Booking error:', error);
-    } finally {
       setLoading(false);
     }
   };
