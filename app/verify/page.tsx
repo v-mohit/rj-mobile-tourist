@@ -216,7 +216,8 @@ export default function VerifyPage() {
         count: ticket.count,
       }));
 
-      // Call the booking creation API
+      // Step 1: Call the booking creation API
+      toast.loading('Creating booking...');
       const bookingResponse = await createBooking(
         bookingInfo.backendPlaceId.toString(),
         ticketsForBooking,
@@ -230,21 +231,53 @@ export default function VerifyPage() {
         throw new Error(bookingResponse.message || 'Booking creation failed');
       }
 
-      toast.success('Booking confirmed! Redirecting to payment...');
+      // Extract booking ID from response
+      const bookingId = bookingResponse.result?.id || bookingResponse.result?.bookingId;
+      if (!bookingId) {
+        throw new Error('Booking ID not found in response');
+      }
 
-      // Save booking with verification info and API response
-      sessionStorage.setItem('verifiedBooking', JSON.stringify({
-        ...bookingInfo,
-        contact,
-        isEmailLogin,
-        verifiedAt: new Date().toISOString(),
-        bookingResponse,
-      }));
+      // Step 2: Confirm booking and get payment gateway details
+      toast.loading('Confirming booking...');
+      const confirmResponse = await confirmBooking(bookingId, authToken || undefined);
 
-      // Redirect to payment page
-      setTimeout(() => {
-        window.location.href = '/payment';
-      }, 1500);
+      if (!confirmResponse.success) {
+        throw new Error(confirmResponse.message || 'Booking confirmation failed');
+      }
+
+      // Step 3: Check if response contains valid payment gateway data
+      if (isValidPaymentData(confirmResponse)) {
+        toast.success('Booking confirmed! Redirecting to payment...');
+
+        // Save booking with verification info and API responses
+        sessionStorage.setItem('verifiedBooking', JSON.stringify({
+          ...bookingInfo,
+          contact,
+          isEmailLogin,
+          verifiedAt: new Date().toISOString(),
+          bookingResponse,
+          confirmResponse,
+          bookingId,
+        }));
+
+        // Clear localStorage
+        localStorage.clear();
+
+        // Brief delay to ensure data is saved before redirect
+        setTimeout(() => {
+          try {
+            const emitraUrl = getEmiraUrl();
+            openPostPage(emitraUrl, confirmResponse);
+          } catch (error: any) {
+            const errorMsg = error?.message || 'Failed to redirect to payment gateway';
+            toast.error(errorMsg);
+            console.error('Payment gateway redirect error:', error);
+          }
+        }, 500);
+      } else {
+        // If payment data is not in the response, show error
+        throw new Error('Payment gateway details not found in confirmation response');
+      }
     } catch (error: any) {
       const errorMsg = error?.response?.data?.message || error?.message || 'Booking confirmation failed';
       toast.error(errorMsg);
