@@ -16,6 +16,14 @@ interface SelectedTicket {
   subtotal: number;
 }
 
+interface ShiftDto {
+  id: string;
+  name: string;
+  startTime: number;
+  endTime: number;
+  [key: string]: any;
+}
+
 interface BookingData {
   placeName: string;
   strapiPlaceId: number;
@@ -28,6 +36,11 @@ interface BookingData {
   foreignerPrice?: number;
   total: number;
   date: string;
+  // New fields for booking creation
+  seasonId?: string;
+  shiftId?: string;
+  bookingDateEpoch?: number;
+  shiftDtos?: ShiftDto[];
 }
 
 export default function VerifyPage() {
