@@ -62,12 +62,12 @@ export default function TicketSelector({
 
         if (response.ticketTypes && Array.isArray(response.ticketTypes)) {
           setTicketTypes(response.ticketTypes);
-          // Store raw API response for later use
-          if (response.raw) {
-            setApiResponse(response.raw as BookingTicketsResponse);
+          // Store API response for later use
+          if (response.result) {
+            setApiResponse(response.result);
             // Auto-select the first shift if available
-            if (response.raw.shiftDtos && response.raw.shiftDtos.length > 0) {
-              setSelectedShiftId(response.raw.shiftDtos[0].id);
+            if (response.result.shiftDtos && response.result.shiftDtos.length > 0) {
+              setSelectedShiftId(response.result.shiftDtos[0].id);
             }
           }
           // Initialize counts for each ticket type to 0

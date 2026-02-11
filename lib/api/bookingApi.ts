@@ -130,7 +130,7 @@ export async function getBookingTickets(
   placeId: string,
   dateEpoch: number,
   specificChargesId: string = '65aa27a26aebab05633bd572'
-): Promise<{ ticketTypes: TicketType[]; raw?: BookingTicketsResponse }> {
+): Promise<{ ticketTypes: TicketType[]; result?: BookingTicketsResponse }> {
   const response = await http.get('/booking/tickets/mobile', {
     params: {
       placeId,
@@ -145,7 +145,7 @@ export async function getBookingTickets(
 
   return {
     ticketTypes: normalized,
-    raw: response.data,
+    result: response?.data?.result || response?.data,
   };
 }
 
