@@ -5,9 +5,27 @@ export interface LoginResponse {
   success: boolean;
 }
 
+export interface UserDetailDto {
+  id?: string;
+  mobileNo?: string;
+  email?: string;
+  [key: string]: any;
+}
+
+export interface VerifyOTPResult {
+  token: string;
+  tokenExpiry: number;
+  userRole: string;
+  userType: string;
+  systemAdmin: boolean;
+  userDetailDto: UserDetailDto | null;
+  [key: string]: any;
+}
+
 export interface VerifyOTPResponse {
   message: string;
   success: boolean;
+  result?: VerifyOTPResult;
   token?: string;
   user?: {
     id: string;
@@ -50,6 +68,7 @@ export async function loginWithEmail(email: string): Promise<LoginResponse> {
 
 /**
  * Verify OTP for mobile login
+ * Extracts token from response.result for use in subsequent API calls
  */
 export async function verifyOTPForMobile(
   mobileNo: string,
@@ -65,11 +84,19 @@ export async function verifyOTPForMobile(
     },
   });
 
-  return response.data;
+  const data = response.data;
+
+  // Extract token from result and add to response for easier access
+  if (data?.result?.token) {
+    data.token = data.result.token;
+  }
+
+  return data;
 }
 
 /**
  * Verify OTP for email login
+ * Extracts token from response.result for use in subsequent API calls
  */
 export async function verifyOTPForEmail(
   email: string,
@@ -85,5 +112,12 @@ export async function verifyOTPForEmail(
     },
   });
 
-  return response.data;
+  const data = response.data;
+
+  // Extract token from result and add to response for easier access
+  if (data?.result?.token) {
+    data.token = data.result.token;
+  }
+
+  return data;
 }

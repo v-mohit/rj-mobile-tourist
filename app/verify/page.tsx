@@ -161,13 +161,24 @@ export default function VerifyPage() {
         response = await verifyOTPForMobile(contact, otp);
       }
 
-      // Save authentication token and contact to session storage
-      if (response.token) {
-        sessionStorage.setItem('authToken', response.token);
-        sessionStorage.setItem('authUser', JSON.stringify(response.user || {}));
-        sessionStorage.setItem('verifiedContact', contact);
-        sessionStorage.setItem('verifiedIsEmail', String(isEmailLogin));
+      // Extract token from response (from result.token or direct token field)
+      const token = response.token || response.result?.token;
+
+      if (!token) {
+        throw new Error('Authentication token not received from server');
       }
+
+      // Save authentication token and details to session storage
+      sessionStorage.setItem('authToken', token);
+      sessionStorage.setItem('authUser', JSON.stringify({
+        userRole: response.result?.userRole,
+        userType: response.result?.userType,
+        systemAdmin: response.result?.systemAdmin,
+        userDetailDto: response.result?.userDetailDto,
+      }));
+      sessionStorage.setItem('verifiedContact', contact);
+      sessionStorage.setItem('verifiedIsEmail', String(isEmailLogin));
+      sessionStorage.setItem('tokenExpiry', String(response.result?.tokenExpiry || 0));
 
       // If booking info exists, show confirmation modal
       if (bookingInfo) {
