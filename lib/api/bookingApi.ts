@@ -230,7 +230,7 @@ export async function createBooking(
 
 /**
  * Confirm booking and get payment gateway details
- * GET /booking/confirm/v2?bookingId=<id>
+ * POST /booking/confirm/v2
  * Auth token is automatically included via axios interceptor
  */
 export interface ConfirmBookingResponse {
@@ -255,7 +255,9 @@ export async function confirmBooking(
 ): Promise<ConfirmBookingResponse> {
   // Token is automatically added by axios interceptor
   // authToken parameter is kept for backward compatibility but not used
-  const response = await http.get(`/booking/confirm/v2?bookingId=${bookingId}`);
+  const response = await http.post('/booking/confirm/v2', {
+    bookingId,
+  });
 
   return response.data;
 }
