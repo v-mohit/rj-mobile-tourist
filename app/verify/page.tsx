@@ -204,6 +204,8 @@ export default function VerifyPage() {
     if (!bookingInfo) return;
 
     setLoading(true);
+    const toastId = toast.loading('Creating booking...');
+
     try {
       // Validate required fields for booking creation
       if (!bookingInfo.selectedTickets || bookingInfo.selectedTickets.length === 0) {
@@ -220,6 +222,7 @@ export default function VerifyPage() {
 
       // Get auth token from session storage
       const authToken = sessionStorage.getItem('authToken');
+      console.log('Auth Token:', authToken ? 'Present' : 'Missing');
 
       // Prepare selected tickets in the format expected by the API
       const ticketsForBooking = bookingInfo.selectedTickets.map(ticket => ({
@@ -228,7 +231,7 @@ export default function VerifyPage() {
       }));
 
       // Step 1: Call the booking creation API
-      const toastId = toast.loading('Creating booking...');
+      console.log('Step 1: Calling /booking/create/v2...');
       const bookingResponse = await createBooking(
         bookingInfo.backendPlaceId.toString(),
         ticketsForBooking,
@@ -238,27 +241,40 @@ export default function VerifyPage() {
         authToken || undefined
       );
 
+      console.log('Step 1 Response:', bookingResponse);
+
       if (!bookingResponse.success) {
         throw new Error(bookingResponse.message || 'Booking creation failed');
       }
 
       // Extract booking ID from response
-      const bookingId = bookingResponse.result?.id || bookingResponse.result?.bookingId;
+      const bookingId = bookingResponse.result?.id || bookingResponse.result?.bookingId || bookingResponse.id;
+      console.log('Extracted Booking ID:', bookingId);
+
       if (!bookingId) {
+        console.error('Full response:', JSON.stringify(bookingResponse, null, 2));
         throw new Error('Booking ID not found in response');
       }
 
       // Step 2: Confirm booking and get payment gateway details
+      console.log('Step 2: Calling /booking/confirm/v2 with bookingId:', bookingId);
       toast.loading('Confirming booking...', { id: toastId });
+
       const confirmResponse = await confirmBooking(bookingId, authToken || undefined);
+      console.log('Step 2 Response:', confirmResponse);
 
       if (!confirmResponse.success) {
         throw new Error(confirmResponse.message || 'Booking confirmation failed');
       }
 
       // Step 3: Check if response contains valid payment gateway data
+      console.log('Step 3: Checking payment data...');
       if (isValidPaymentData(confirmResponse)) {
+        console.log('Step 3: Payment data valid, redirecting to eMitra');
         toast.success('Booking confirmed! Redirecting to payment...', { id: toastId });
+
+        // Extract payment data from response (could be top-level or in result)
+        const paymentData = confirmResponse.result || confirmResponse;
 
         // Save booking with verification info and API responses
         sessionStorage.setItem('verifiedBooking', JSON.stringify({
@@ -278,7 +294,9 @@ export default function VerifyPage() {
         setTimeout(() => {
           try {
             const emitraUrl = getEmiraUrl();
-            openPostPage(emitraUrl, confirmResponse);
+            console.log('Redirecting to eMitra URL:', emitraUrl);
+            console.log('Payment data:', paymentData);
+            openPostPage(emitraUrl, paymentData);
           } catch (error: any) {
             const errorMsg = error?.message || 'Failed to redirect to payment gateway';
             toast.error(errorMsg);
@@ -288,7 +306,8 @@ export default function VerifyPage() {
         }, 500);
       } else {
         // If payment data is not in the response, show error
-        throw new Error('Payment gateway details not found in confirmation response');
+        console.error('Payment data validation failed. Response:', confirmResponse);
+        throw new Error('Payment gateway details not found in confirmation response. Check ENCDATA, MERCHANTCODE, SERVICEID in response.');
       }
     } catch (error: any) {
       const errorMsg = error?.response?.data?.message || error?.message || 'Booking confirmation failed';

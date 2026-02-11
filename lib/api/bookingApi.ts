@@ -188,6 +188,7 @@ export interface CreateBookingResponse {
 /**
  * Create a new booking with selected tickets
  * POST /booking/create/v2?onSite=false
+ * Auth token is automatically included via axios interceptor
  */
 export async function createBooking(
   placeId: string,
@@ -214,18 +215,9 @@ export async function createBooking(
     deviceId: 'WHoWer',
   };
 
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-
-  // Add auth token if provided
-  if (authToken) {
-    headers['Authorization'] = `Bearer ${authToken}`;
-  }
-
-  const response = await http.post('/booking/create/v2?onSite=false', payload, {
-    headers,
-  });
+  // Token is automatically added by axios interceptor
+  // authToken parameter is kept for backward compatibility but not used
+  const response = await http.post('/booking/create/v2?onSite=false', payload);
 
   return response.data;
 }
@@ -233,10 +225,17 @@ export async function createBooking(
 /**
  * Confirm booking and get payment gateway details
  * GET /booking/confirm/v2?bookingId=<id>
+ * Auth token is automatically included via axios interceptor
  */
 export interface ConfirmBookingResponse {
   success: boolean;
   message: string;
+  result?: {
+    ENCDATA?: string;
+    MERCHANTCODE?: string;
+    SERVICEID?: string;
+    [key: string]: any;
+  };
   ENCDATA?: string;
   MERCHANTCODE?: string;
   SERVICEID?: string;
@@ -247,18 +246,9 @@ export async function confirmBooking(
   bookingId: string,
   authToken?: string
 ): Promise<ConfirmBookingResponse> {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-
-  // Add auth token if provided
-  if (authToken) {
-    headers['Authorization'] = `Bearer ${authToken}`;
-  }
-
-  const response = await http.get(`/booking/confirm/v2?bookingId=${bookingId}`, {
-    headers,
-  });
+  // Token is automatically added by axios interceptor
+  // authToken parameter is kept for backward compatibility but not used
+  const response = await http.get(`/booking/confirm/v2?bookingId=${bookingId}`);
 
   return response.data;
 }

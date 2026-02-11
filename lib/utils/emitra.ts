@@ -58,7 +58,18 @@ export function openPostPage(
 
 /**
  * Check if response contains valid payment gateway data
+ * Checks both top-level and result-nested payment data
  */
 export function isValidPaymentData(response: any): boolean {
-  return !!(response?.ENCDATA && response?.MERCHANTCODE && response?.SERVICEID);
+  // Check if payment data is at top level
+  if (response?.ENCDATA && response?.MERCHANTCODE && response?.SERVICEID) {
+    return true;
+  }
+
+  // Check if payment data is in result object
+  if (response?.result?.ENCDATA && response?.result?.MERCHANTCODE && response?.result?.SERVICEID) {
+    return true;
+  }
+
+  return false;
 }
