@@ -243,7 +243,8 @@ export default function VerifyPage() {
 
       console.log('Step 1 Response:', bookingResponse);
 
-      if (!bookingResponse.success) {
+      // Check if booking creation was successful (API returns code: 200 for success)
+      if (bookingResponse.code !== 200) {
         throw new Error(bookingResponse.message || 'Booking creation failed');
       }
 
@@ -263,7 +264,8 @@ export default function VerifyPage() {
       const confirmResponse = await confirmBooking(bookingId, authToken || undefined);
       console.log('Step 2 Response:', confirmResponse);
 
-      if (!confirmResponse.success) {
+      // Check if confirmation was successful
+      if (confirmResponse.code !== 200 && !confirmResponse.success) {
         throw new Error(confirmResponse.message || 'Booking confirmation failed');
       }
 

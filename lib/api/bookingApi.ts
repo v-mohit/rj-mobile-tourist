@@ -176,13 +176,19 @@ export interface CreateBookingRequest {
  * Booking creation response
  */
 export interface CreateBookingResponse {
-  success: boolean;
+  code: number; // 200 for success
   message: string;
+  success?: boolean; // For backward compatibility
   result?: {
+    id?: string;
     bookingId?: string;
     referenceNumber?: string;
+    vip?: boolean;
+    paymentStatus?: string;
+    bookingDate?: number;
     [key: string]: any;
   };
+  id?: string;
 }
 
 /**
@@ -228,8 +234,9 @@ export async function createBooking(
  * Auth token is automatically included via axios interceptor
  */
 export interface ConfirmBookingResponse {
-  success: boolean;
+  code?: number; // 200 for success
   message: string;
+  success?: boolean; // For backward compatibility
   result?: {
     ENCDATA?: string;
     MERCHANTCODE?: string;
